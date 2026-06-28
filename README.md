@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/banner.png" alt="BAYAR GG for WooCommerce — QRIS & E-Wallet Payment Gateway" width="100%">
+</p>
+
 # BAYAR GG for WooCommerce
 
 Plugin pembayaran resmi yang menghubungkan toko **WooCommerce** Anda dengan **BAYAR GG**. Pelanggan membayar lewat **QRIS** (bisa dipindai GoPay, OVO, DANA, ShopeePay, dan semua mobile banking), lalu status order **otomatis lunas** lewat webhook.
