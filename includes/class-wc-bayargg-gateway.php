@@ -34,7 +34,7 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
         $this->description    = $this->get_option('description', 'Bayar pakai QRIS — bisa dipindai semua e-wallet & mobile banking.');
         $this->enabled        = $this->get_option('enabled');
         $this->api_key        = trim((string) $this->get_option('api_key'));
-        $this->base_url       = trim((string) $this->get_option('base_url')) ?: 'https://www.bayar.gg/api';
+        $this->base_url       = $this->sanitize_base_url($this->get_option('base_url'));
         $this->payment_method = $this->get_option('payment_method', 'qris');
         $this->debug          = 'yes' === $this->get_option('debug', 'no');
 
@@ -46,6 +46,30 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
 
         // Saat pelanggan kembali ke halaman "terima kasih", verifikasi status sekali lagi.
         add_action('woocommerce_thankyou_' . $this->id, [$this, 'maybe_verify_on_thankyou']);
+    }
+
+    /**
+     * Batasi API Base URL ke host BAYAR GG (mencegah SSRF / kebocoran API key
+     * ke host arbitrer bila akun admin disusupi). Fallback ke default.
+     *
+     * @param string|null $value
+     * @return string
+     */
+    private function sanitize_base_url($value) {
+        $default = 'https://www.bayar.gg/api';
+        $url     = trim((string) $value);
+        if ('' === $url) {
+            return $default;
+        }
+        $host = wp_parse_url($url, PHP_URL_HOST);
+        $host = is_string($host) ? strtolower($host) : '';
+        // Izinkan hanya bayar.gg dan subdomainnya, via HTTPS.
+        $ok_scheme = (0 === strpos($url, 'https://'));
+        $ok_host   = ('bayar.gg' === $host || (strlen($host) > 9 && '.bayar.gg' === substr($host, -9)));
+        if ($ok_scheme && $ok_host) {
+            return rtrim($url, '/');
+        }
+        return $default;
     }
 
     /**
@@ -185,7 +209,7 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
 
         $res = $api->create_payment($payload);
 
-        if (empty($res['success']) || empty($res['data']['payment_url'])) {
+        if (empty($res['success']) || empty($res['data']['payment_url']) || empty($res['data']['invoice_id'])) {
             $msg = isset($res['error']) ? $res['error'] : 'Gagal membuat pembayaran.';
             $this->log('create_payment gagal untuk order #' . $order->get_order_number() . ': ' . $msg);
             wc_add_notice('Gagal memproses pembayaran: ' . esc_html($msg), 'error');
@@ -219,12 +243,11 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
         $raw     = file_get_contents('php://input');
         $payload = json_decode($raw, true);
         if (!is_array($payload)) {
-            $payload = $_POST; // phpcs:ignore WordPress.Security.NonceVerification
+            $payload = wp_unslash($_POST); // phpcs:ignore WordPress.Security.NonceVerification
         }
 
-        $invoice = sanitize_text_field(
-            $payload['invoice_id'] ?? $payload['invoice'] ?? ($_GET['invoice'] ?? '') // phpcs:ignore WordPress.Security.NonceVerification
-        );
+        $invoice_raw = $payload['invoice_id'] ?? $payload['invoice'] ?? (isset($_GET['invoice']) ? wp_unslash($_GET['invoice']) : ''); // phpcs:ignore WordPress.Security.NonceVerification
+        $invoice     = sanitize_text_field((string) $invoice_raw);
 
         if ('' === $invoice) {
             status_header(400);
@@ -273,7 +296,7 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
         }
         $api    = new BayarGG_API($this->api_key, $this->base_url);
         $check  = $api->check_payment($invoice);
-        $status = $check['data']['status'] ?? '';
+        $status = $check['data']['status'] ?? ($check['status'] ?? '');
         if ('paid' === $status) {
             $this->mark_order_paid($order, $check, $invoice, 'thankyou');
         }
@@ -286,7 +309,27 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
         if ($order->is_paid()) {
             return;
         }
-        $reff = $check['data']['paid_reff_num'] ?? ($check['data']['reff_num'] ?? $invoice);
+
+        // Respons API bisa flat atau ter-nest di bawah "data" — dukung keduanya.
+        $d = (isset($check['data']) && is_array($check['data'])) ? $check['data'] : $check;
+
+        // Defense-in-depth: pastikan nominal yang dibayar cocok dengan total order
+        // sebelum menandai lunas (mencegah underpayment / invoice tertukar).
+        $expected = (int) round((float) $order->get_total());
+        $paidRaw  = $d['final_amount'] ?? ($d['amount'] ?? null);
+        $paid     = (null !== $paidRaw) ? (int) round((float) $paidRaw) : null;
+        if (null !== $paid && $expected > 0 && $paid < $expected) {
+            $order->add_order_note(sprintf(
+                'BAYAR GG: pembayaran ditahan — nominal terverifikasi (%d) lebih kecil dari total order (%d). Invoice %s.',
+                $paid,
+                $expected,
+                $invoice
+            ));
+            $this->log(sprintf('Order #%s TIDAK ditandai lunas: paid %d < total %d (invoice %s).', $order->get_order_number(), $paid, $expected, $invoice));
+            return;
+        }
+
+        $reff = $d['paid_reff_num'] ?? ($d['reff_num'] ?? $invoice);
         $order->payment_complete($reff);
         $order->add_order_note(sprintf('Pembayaran BAYAR GG diterima (invoice %s, ref %s, via %s).', $invoice, $reff, $source));
         $this->log(sprintf('Order #%s ditandai lunas via %s (invoice %s).', $order->get_order_number(), $source, $invoice));
