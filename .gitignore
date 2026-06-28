@@ -1,0 +1,13 @@
+# Dependencies
+/vendor/
+node_modules/
+
+# Build / packaging
+*.zip
+
+# Logs & OS/editor cruft
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
