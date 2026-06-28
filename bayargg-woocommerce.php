@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       BAYAR GG for WooCommerce
  * Plugin URI:        https://github.com/bayar-global-gateway/bayargg-woocommerce
- * Description:       Terima pembayaran QRIS & e-wallet (QRIS BAYAR GG, BRI/GoPay/Livin Merchant QRIS, OVO) di WooCommerce lewat BAYAR GG. Pelanggan diarahkan ke halaman pembayaran QRIS, status order otomatis lunas via webhook.
+ * Description:       Terima pembayaran QRIS & e-wallet (QRIS BAYAR GG, BRI/GoPay/Livin Merchant QRIS, OVO) di WooCommerce lewat BAYAR GG. Satu QRIS bisa dipindai semua e-wallet & mobile banking, status order otomatis lunas via webhook.
  * Version:           1.0.0
  * Author:            BAYAR GG
  * Author URI:        https://www.bayar.gg

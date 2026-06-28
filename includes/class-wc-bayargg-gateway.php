@@ -25,13 +25,13 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
         $this->method_title       = 'BAYAR GG';
         $this->method_description = 'Terima pembayaran QRIS &amp; e-wallet via BAYAR GG (QRIS BAYAR GG, BRI/GoPay/Livin Merchant QRIS, OVO). Pelanggan diarahkan ke halaman pembayaran QRIS, dan status order otomatis menjadi lunas lewat webhook.';
         $this->has_fields         = false;
-        $this->icon               = apply_filters('bayargg_wc_icon', BAYARGG_WC_URL . 'assets/bayargg-icon.svg');
+        $this->icon               = apply_filters('bayargg_wc_icon', BAYARGG_WC_URL . 'assets/bayargg-logo.png');
 
         $this->init_form_fields();
         $this->init_settings();
 
         $this->title          = $this->get_option('title', 'QRIS / E-Wallet (BAYAR GG)');
-        $this->description    = $this->get_option('description', 'Bayar pakai QRIS — GoPay, OVO, DANA, ShopeePay, atau mobile banking apa pun.');
+        $this->description    = $this->get_option('description', 'Bayar pakai QRIS — bisa dipindai semua e-wallet & mobile banking.');
         $this->enabled        = $this->get_option('enabled');
         $this->api_key        = trim((string) $this->get_option('api_key'));
         $this->base_url       = trim((string) $this->get_option('base_url')) ?: 'https://www.bayar.gg/api';
@@ -46,6 +46,40 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
 
         // Saat pelanggan kembali ke halaman "terima kasih", verifikasi status sekali lagi.
         add_action('woocommerce_thankyou_' . $this->id, [$this, 'maybe_verify_on_thankyou']);
+    }
+
+    /**
+     * Tampilkan logo BAYAR GG dengan ukuran rapi di checkout (tinggi tetap ~26px),
+     * sehingga tidak melar di tema apa pun.
+     *
+     * @return string
+     */
+    public function get_icon() {
+        $icon_url = $this->icon ? $this->icon : (BAYARGG_WC_URL . 'assets/bayargg-logo.png');
+        $icon     = sprintf(
+            '<img src="%s" alt="%s" style="max-height:26px;width:auto;vertical-align:middle;margin-left:6px;" />',
+            esc_url($icon_url),
+            esc_attr($this->get_title())
+        );
+
+        return apply_filters('woocommerce_gateway_icon', $icon, $this->id);
+    }
+
+    /**
+     * Header bermerek di atas form pengaturan (WooCommerce → Payments → BAYAR GG).
+     */
+    public function admin_options() {
+        $logo = esc_url(BAYARGG_WC_URL . 'assets/bayargg-logo.png');
+        ?>
+        <div style="display:flex;align-items:center;gap:16px;padding:18px 22px;margin:0 0 18px;border-radius:14px;background:linear-gradient(120deg,#0a0e17 0%,#0d2a63 100%);box-shadow:0 6px 24px rgba(10,14,23,.18);">
+            <img src="<?php echo $logo; ?>" alt="BAYAR GG" style="height:34px;width:auto;" />
+            <div style="line-height:1.4;">
+                <div style="color:#fff;font-size:15px;font-weight:700;">Gateway Pembayaran BAYAR GG</div>
+                <div style="color:#9fc2ff;font-size:12.5px;">QRIS &amp; e-wallet untuk WooCommerce · <a href="https://www.bayar.gg/api-docs" target="_blank" rel="noopener" style="color:#5aa2ff;text-decoration:none;">Dokumentasi API</a> · <a href="https://www.bayar.gg/dashboard" target="_blank" rel="noopener" style="color:#5aa2ff;text-decoration:none;">Dashboard</a></div>
+            </div>
+        </div>
+        <?php
+        parent::admin_options();
     }
 
     /**
@@ -72,7 +106,7 @@ class WC_BayarGG_Gateway extends WC_Payment_Gateway {
                 'title'       => 'Deskripsi',
                 'type'        => 'textarea',
                 'description' => 'Keterangan singkat di bawah judul metode pembayaran.',
-                'default'     => 'Bayar pakai QRIS — GoPay, OVO, DANA, ShopeePay, atau mobile banking apa pun.',
+                'default'     => 'Bayar pakai QRIS — bisa dipindai semua e-wallet & mobile banking.',
                 'desc_tip'    => true,
             ],
             'api_key' => [

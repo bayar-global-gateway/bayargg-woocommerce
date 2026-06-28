@@ -2,9 +2,17 @@
   <img src="assets/banner.png" alt="BAYAR GG for WooCommerce — QRIS & E-Wallet Payment Gateway" width="100%">
 </p>
 
+<p align="center">
+  <a href="https://www.bayar.gg"><img src="https://img.shields.io/badge/BAYAR%20GG-Official%20Plugin-1a86ff?style=flat-square" alt="Official Plugin"></a>
+  <img src="https://img.shields.io/badge/WooCommerce-5.0%2B-7f54b3?style=flat-square" alt="WooCommerce 5.0+">
+  <img src="https://img.shields.io/badge/WordPress-5.6%2B-21759b?style=flat-square" alt="WordPress 5.6+">
+  <img src="https://img.shields.io/badge/PHP-7.4%2B-777bb4?style=flat-square" alt="PHP 7.4+">
+  <img src="https://img.shields.io/badge/License-GPL--2.0-blue?style=flat-square" alt="License GPL-2.0">
+</p>
+
 # BAYAR GG for WooCommerce
 
-Plugin pembayaran resmi yang menghubungkan toko **WooCommerce** Anda dengan **BAYAR GG**. Pelanggan membayar lewat **QRIS** (bisa dipindai GoPay, OVO, DANA, ShopeePay, dan semua mobile banking), lalu status order **otomatis lunas** lewat webhook.
+Plugin pembayaran resmi yang menghubungkan toko **WooCommerce** Anda dengan **BAYAR GG**. Pelanggan membayar lewat **QRIS** (satu QR bisa dipindai **semua e-wallet** dan mobile banking), lalu status order **otomatis lunas** lewat webhook.
 
 > Butuh akun BAYAR GG + API Key — daftar/login di **https://www.bayar.gg**
 

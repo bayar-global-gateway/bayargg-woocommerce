@@ -14,7 +14,7 @@ Terima pembayaran QRIS & e-wallet (QRIS BAYAR GG, BRI/GoPay/Livin Merchant QRIS,
 
 == Description ==
 
-BAYAR GG for WooCommerce menghubungkan toko WooCommerce Anda dengan gateway pembayaran BAYAR GG. Pelanggan membayar lewat QRIS (bisa dipindai oleh GoPay, OVO, DANA, ShopeePay, dan mobile banking apa pun), lalu status order otomatis menjadi lunas melalui webhook.
+BAYAR GG for WooCommerce menghubungkan toko WooCommerce Anda dengan gateway pembayaran BAYAR GG. Pelanggan membayar lewat QRIS (satu QR bisa dipindai semua e-wallet dan mobile banking), lalu status order otomatis menjadi lunas melalui webhook.
 
 Fitur:
 
