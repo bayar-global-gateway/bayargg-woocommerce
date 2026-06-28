@@ -6,7 +6,7 @@ Tested up to: 6.7
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 9.5
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,9 @@ Aktifkan Mode Debug lalu cek WooCommerce -> Status -> Logs (source: bayargg). Pa
 "QRIS Admin" paling universal (maks Rp 500.000/transaksi). Untuk nominal besar atau settlement ke rekening sendiri, pakai QRIS BAYAR GG / BRI / Livin / GoPay sesuai yang sudah aktif di akun Anda.
 
 == Changelog ==
+
+= 1.0.2 =
+* Dukungan WooCommerce Block Checkout (Cart/Checkout Blocks) — gateway kini tampil di checkout berbasis blok, bukan hanya checkout klasik.
 
 = 1.0.1 =
 * Pakai logo resmi BAYAR GG sebagai ikon gateway di checkout (ukuran rapi).

@@ -3,7 +3,7 @@
  * Plugin Name:       BAYAR GG for WooCommerce
  * Plugin URI:        https://github.com/bayar-global-gateway/bayargg-woocommerce
  * Description:       Terima pembayaran QRIS & e-wallet (QRIS BAYAR GG, BRI/GoPay/Livin Merchant QRIS, OVO) di WooCommerce lewat BAYAR GG. Satu QRIS bisa dipindai semua e-wallet & mobile banking, status order otomatis lunas via webhook.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            BAYAR GG
  * Author URI:        https://www.bayar.gg
  * License:           GPL-2.0-or-later
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
     exit; // No direct access.
 }
 
-define('BAYARGG_WC_VERSION', '1.0.1');
+define('BAYARGG_WC_VERSION', '1.0.2');
 define('BAYARGG_WC_FILE', __FILE__);
 define('BAYARGG_WC_PATH', plugin_dir_path(__FILE__));
 define('BAYARGG_WC_URL', plugin_dir_url(__FILE__));
@@ -55,6 +55,24 @@ add_action('plugins_loaded', function () {
         return $gateways;
     });
 }, 11);
+
+/**
+ * Integrasi WooCommerce Blocks (block checkout) agar gateway tampil di checkout berbasis blok.
+ */
+add_action('woocommerce_blocks_loaded', function () {
+    if (!class_exists('Automattic\\WooCommerce\\Blocks\\Payments\\Integrations\\AbstractPaymentMethodType')) {
+        return;
+    }
+
+    require_once BAYARGG_WC_PATH . 'includes/class-wc-bayargg-blocks.php';
+
+    add_action(
+        'woocommerce_blocks_payment_method_type_registration',
+        function (Automattic\WooCommerce\Blocks\Payments\PaymentMethodRegistry $registry) {
+            $registry->register(new WC_BayarGG_Blocks_Support());
+        }
+    );
+});
 
 /**
  * Tautan "Pengaturan" di halaman daftar plugin.

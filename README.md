@@ -42,6 +42,7 @@ Plugin pembayaran resmi yang menghubungkan toko **WooCommerce** Anda dengan **BA
 - **Konfirmasi otomatis** via webhook + **verifikasi ulang ke API** (anti-spoof) sebelum order ditandai lunas.
 - **Jaring pengaman**: status dicek lagi saat pelanggan kembali ke halaman "Terima kasih".
 - Kompatibel **WooCommerce HPOS** (High-Performance Order Storage) & checkout blocks.
+- Tampil di **checkout klasik** maupun **Block Checkout** (Cart/Checkout Blocks).
 - **Mode debug** dengan log bawaan WooCommerce.
 
 ---
